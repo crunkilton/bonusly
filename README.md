@@ -55,7 +55,8 @@ To get every bonus ever, use the `get_all_bonuses` function:
 - note that if someone gives a bonus to two people (i.e. '+10 @cody @sarah') the `receiver_*` columns are only for one of the receivers, which bonusly seems to pick randomly. If you look in the `receivers` column you should get a list of dicts of all recipients. I should fix this later.
 
 #### Further afield: making a network viz of bonuses using the igraph package:
-```import igraph as ig
+```
+import igraph as ig
 
 df = get_all_bonuses(b)
 
