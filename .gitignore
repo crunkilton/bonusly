@@ -1,0 +1,6 @@
+secrets.py
+__pycache__/
+data/all_bonuses.csv
+.vscode/settings.json
+test_plot.png
+bonusly/working.py
