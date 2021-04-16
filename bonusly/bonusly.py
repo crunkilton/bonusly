@@ -112,10 +112,7 @@ class BonuslyClient:
         show_financial_data: Whether or not to include financial data (giving balance, etc.) (admin only)
         user_mode: comma separated list of user_modes (valid user modes are normal, observer, receiver, benefactor, bot)
         """
-        if id is None:
-            self.url += "users/"
-        else:
-            self.url += "users/" + id + "/"
+        self.url += "users/" if id is None else "users/" + id + "/"
         self.params = params
         return self
 
@@ -134,21 +131,15 @@ class BonuslyClient:
         return self
 
     def redemptions(self, id=None, **params):
-        if id is None:
-            self.url += "redemptions/"
-        else:
-            self.url += "redemptions/" + id + "/"
+        self.url += "redemptions/" if id is None else "redemptions/" + id + "/"
         self.params = params
 
         return self
 
     def rewards(self, id, **params):
-        if id is None:
-            self.url += "rewards/"
-        else:
-            self.url = (
-                self.url + "reward/" + id + "/"
-            )  # I know this is technically "reward" vs "rewards" - but I think it makes more sense to put this here
+        self.url += (
+            "rewards/" if id is None else "reward/" + id + "/"
+        )  # I know this is technically "reward" vs "rewards" - but I think it makes more sense to put this here
         self.params = params
 
     def leaderboards(self, **params):
@@ -167,11 +158,7 @@ class BonuslyClient:
         return self
 
     def bonuses(self, id=None, **params):
-        if id is None:
-            self.url += "bonuses/"
-        else:
-            self.url += "bonuses/" + id + "/"
-
+        self.url += "bonuses/" if id is None else "bonuses/" + id + "/"
         self.params = params
         return self
 
@@ -180,10 +167,7 @@ class BonuslyClient:
         return self
 
     def webhooks(self, id=None):
-        if id is None:
-            self.url += "webhooks/"
-        else:
-            self.url += "webhooks/" + id + "/"
+        self.url += "webhooks/" if id is None else "webhooks/" + id + "/"
         return self
 
     def api_keys(self, **params):
@@ -211,19 +195,17 @@ def get_all_bonuses(bonusly_client, include_children=True, skip_limit=float("inf
     bigdf = pd.concat(biglist, ignore_index=True)
 
     # this below bit appends child bonuses instead of leaving them as json in column
-    if include_children:
-        # limit to only bonuses with child gifts:
-        newlst = [elem for elem in bigdf["child_bonuses"].tolist() if elem]
-        # pd.json_normalize for everything in newlst
-        n2 = [pd.json_normalize(elem, sep="_") for elem in newlst]
-        # bringing it all together
-        child_df = pd.concat(n2, ignore_index=True)
-        # appending children to prior df
-        new = bigdf.append(child_df)
-        # dropping child_bonuses column (parent_bonus_id indicates if a child)
-        new = new.drop("child_bonuses", axis=1)
-        ans = new
-    else:
-        ans = bigdf
+    if not include_children:
+        return bigdf
 
-    return ans
+    # limit to only bonuses with child gifts:
+    newlst = [elem for elem in bigdf["child_bonuses"].tolist() if elem]
+    # pd.json_normalize for everything in newlst
+    n2 = [pd.json_normalize(elem, sep="_") for elem in newlst]
+    # bringing it all together
+    child_df = pd.concat(n2, ignore_index=True)
+    # appending children to prior df
+    new = bigdf.append(child_df)
+    # dropping child_bonuses column (parent_bonus_id indicates if a child)
+    new = new.drop("child_bonuses", axis=1)
+    return new
